@@ -1,7 +1,8 @@
 ﻿var dbCalls = require('../databaseCalls');
+var scores = require('../updateScores');
 var path = require('path');
 
-var groupsDeadline = new Date('2018-06-14 00:00:00 EST');
+var groupsDeadline = new Date('2018-06-14 08:00:00 EST');
 
 module.exports = function (app, passport) {
     app.get('/', function (req, res) {
@@ -10,6 +11,10 @@ module.exports = function (app, passport) {
 
     app.get('/login', function (req, res) {
         res.render('login.ejs', { message: req.flash('loginMessage') });
+    });
+
+    app.get('/resetPassword', function (req, res) {
+        res.render('reset.ejs', {message: req.flash('loginMessage')});
     });
 
     app.post('/login', passport.authenticate('local-login', {
@@ -25,7 +30,11 @@ module.exports = function (app, passport) {
     });
 
     app.get('/signup', function (req, res) {
-        res.render('signup.ejs', { message: req.flash('signupMessage') });
+        var now = new Date();
+        if (now >= groupsDeadline)
+            res.redirect('/');
+        else
+            res.render('signup.ejs', { message: req.flash('signupMessage') });
     });
 
     app.post('/signup', passport.authenticate('local-signup', {
@@ -43,6 +52,45 @@ module.exports = function (app, passport) {
             res.render('profile.ejs', { user: result.data[0] });
         };
     });
+
+    app.get('/admin', isLoggedIn, function(req, res){
+        if ([5, 113].indexOf(req.user.id) !== -1)
+            res.sendFile(path.join(__dirname, '../views/admin.html'));
+        else
+            res.redirect('/profile');
+    });
+
+    app.get('/adminPasswords', isLoggedIn, async function(req, res){
+        if ([5, 113].indexOf(req.user.id) !== -1){
+            var result = await dbCalls.get.passwords();
+            if (result.error){
+                console.log(result.error);
+                res.send(JSON.stringify(error));
+            } else {
+                res.send(JSON.stringify(data));
+            }
+        } else {
+            res.redirect('/profile');
+        }
+    });
+
+    app.post('/updatePaid', async function(req, res){
+        var result = await dbCalls.update.paid(req.body.paid);
+        if (result.error)
+            console.log(result.error);
+        res.redirect('/admin');
+    });
+
+    app.post('/passwordReset', async function(req, res){
+        var result = await dbCalls.update.password(req.body);
+        if (result.error){
+            console.log(result.error);
+            res.redirect('/resetPassword');
+        } else {
+            res.redirect('/login');
+        }
+    });
+    
 
     app.get('/groups', isLoggedIn, function (req, res) {
         res.render('groups.ejs', { user: req.user });
@@ -149,6 +197,11 @@ module.exports = function (app, passport) {
         } else {
             res.send(JSON.stringify(result.data));
         };
+    });
+
+    app.get('/updateScores', function(req, res){
+        scores.update();
+        res.send(JSON.stringify('Yes master'));
     });
 
     app.get('/logout', function (req, res) {

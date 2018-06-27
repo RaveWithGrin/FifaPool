@@ -23,7 +23,7 @@ function parseTeams(data){
     var index = 0;
     
     for (var i = 0; i < 2; i++){
-        html += '<div class="row">';
+        html += '<div class="row" id="groupSelector">';
         for (var j = 0; j < 4; j++){
             index = ((i * 16) + (j * 4));
             html += '<div class="well col-sm-3"><h1><span class="fa fa-users"></span> ' + teams[index].groupName + '</h1><div id="group' + teams[index].groupId + '" class="list-group">';
@@ -35,6 +35,7 @@ function parseTeams(data){
         }
         html += '</div>';
     }
+    $('#groupSelector').remove();
     $('#groupsContainer').append(html);
     $('#groupsContainer').hide();
     
@@ -103,7 +104,9 @@ function listSorted(evt){
             teams: sortables[index].toArray()
         },
         success: function(response){
-            console.log(JSON.parse(response));
+            var response = JSON.parse(response);
+            if response.error
+                location.reload();
             $.ajax({
                 type: 'GET',
                 url: '/getGroupPercentages',

@@ -27,7 +27,6 @@
                 <h1><span class="fa fa-anchor"></span> Profile Page</h1>
             </div>
             <div class="row">
-                <!-- LOCAL INFORMATION -->
                 <div class="col-sm-6">
                     <div class="well">
                         <h3><span class="fa fa-user"></span> <%= user.name %></h3>
@@ -35,6 +34,27 @@
                             <strong>Email</strong>: <%= user.email %><br>
                             <strong>Paid?</strong>: <%= (user.paid === 0) ? 'No' : 'Yes' %><br>
                             <strong>Points</strong>: <%= user.points %><br>
+                        </p>
+                    </div>
+                    <div class="well">
+                        <h3><span class="fa fa-book"></span> Rules</h3>
+                        <p>
+                            <strong>Deadlines</strong><br>
+                            <p>Group Stage: June 14th - 08:00AM EST</p>
+                            <p>Round of 16: June 30th - 08:00AM EST</p>
+                            <p>Quarter Finals: July 6th - 08:00AM EST</p>
+                            <p>Semi Finals: July 10th - 08:00AM EST</p>
+                            <p>Third Place & Finals: July 14th - 08:00AM EST</p>
+                            <strong>Group Stage Scoring</strong><br>
+                            <p>Correctly predict group winner: 10 pts</p>
+                            <p>Correctly predict group runner-up: 10 pts</p>
+                            <p>Correctly predict a top two team in wrong position: 5 pts</p>
+                            <p>Correctly predict the entire group in the correct order: 15 pts</p>
+                            <strong>Knockout Stage Scoring</strong><br>
+                            <p>For each correct team in the 2nd round: 20 pts</p>
+                            <p>For each correct team + correct score in the Quarter Finals: 30 pts + 10 pts</p>
+                            <p>For each correct team + correct score in the Semi Finals: 40 pts + 10 pts</p>
+                            <p>For each correct team + correct score in the Final: 50 pts + 10 pts</p>
                         </p>
                     </div>
                 </div>

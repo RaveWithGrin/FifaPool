@@ -1,5 +1,6 @@
 ﻿var database = require('./config/database');
 var mysql = require('promise-mysql');
+var bcrypt = require('bcrypt-nodejs');
 
 var runQuery = async function (sql, options) {
     var connection = await mysql.createConnection(database.connection);
@@ -127,6 +128,13 @@ var get = {
         } else {
             return ({ error: null, data: result.data });
         }
+    },
+    passwords: async function () {
+        var result = await runQuery('SELECT email, password FROM users');
+        if (result.error)
+            return ({ error: 'Problem querying database', data: null });
+        else
+            return ({ error: null, data: result.data });
     }
 };
 
@@ -199,6 +207,21 @@ var update = {
             return ({ error: 'Problem querying database', data: null });
         } else {
             return ({ error: null, data: result.data });
+        }
+    },
+    password: async function(user) {
+        var result = await runQuery('SELECT password FROM users WHERE email = ?', [user.email]);
+        if (result.error)
+            return ({ error: 'Problem querying database', data: null });
+        else {
+            if (user.secretkey === result.data[0].password) {
+                result = await runQuery('UPDATE users SET password = ? WHERE email = ?', [bcrypt.hashSync(user.password, null, null), user.email]);
+                if (result.error)
+                    return ({ error: 'Problem querying database', data: null });
+                else
+                    return ({ error: null, data: result.data });
+            } else
+                return ({ error: 'Incorrect secret key', data: null });
         }
     }
 }

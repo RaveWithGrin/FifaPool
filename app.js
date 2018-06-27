@@ -11,7 +11,7 @@ var passport = require('passport');
 var flash = require('connect-flash');
 
 var app = express();
-var port = process.env.PORT || 8081;
+var port = process.env.PORT || 8082;
 
 app.use(logger('combined'));
 app.use(bodyParser.json());
