@@ -181,7 +181,7 @@ module.exports = function (app, passport) {
             if (result.error) {
                 res.send(JSON.stringify(error));
             } else {
-                res.send(JSON.stringify('Inserted row ' + result.data));
+                res.send(JSON.stringify('Inserted row ' + result.data.insertId));
             };
         }
     });
