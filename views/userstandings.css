@@ -1,0 +1,32 @@
+.paid {
+    background-color: rgba(0,255,0,0.5);
+}
+
+.notPaid {
+    background-color: rgba(255,0,0,0.5);
+}
+
+.nameBox {
+    width: 50%;
+    height: 50px;
+    line-height: 50px;
+}
+
+.pointsBox {
+    width: 30%;
+}
+
+.placeBox {
+    width: 20%;
+}
+
+.userRow {
+    display: flex;
+    color: black;
+    font-size: 30px;
+    text-align: center;
+    height: 50px;
+    line-height: 10px;
+    border: 1px solid black;
+    align-items: center;
+}

@@ -1,0 +1,54 @@
+.container {
+    display: hidden;
+}
+
+.flag {
+    width: 90px;
+    height: 60px;
+    border-left: 1px solid black;
+}
+
+.teamRow {
+    height: 60px;
+    display: flex;
+    box-sizing: content-box;
+    border: 1px solid black;
+}
+
+.list-group-item {
+    background-color: rgba(255, 0,0, 0.5);
+}
+
+.list-group-item:nth-child(1), .list-group-item:nth-child(2){
+    background-color: rgba(0, 255, 0, 0.5);
+}
+
+.list-group-item:nth-child(3), .list-group-item:nth-child(4){
+    background-color: rgba(255, 0, 0, 0.5);
+}
+
+.rowLabel {
+    height: 100%;
+    flex-grow: 100;
+    text-align: center;
+}
+
+.teamLabel {
+    color: black;
+    height: 70%;
+    font-size: 20px;
+    line-height: 55px;
+}
+
+.percent {
+    height: 30%;
+}
+
+.list-group-item {
+    padding: 0;
+    margin-bottom: 0;
+}
+
+.well {
+    border: 0;
+}

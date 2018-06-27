@@ -1,0 +1,34 @@
+<!doctype html>
+<html>
+    <head>
+        <title>WorldCup Fantasy Pool</title>
+        <link rel='stylesheet' href='//netdna.bootstrapcdn.com/bootstrap/3.0.2/css/bootstrap.min.css'>
+        <link rel='stylesheet' href='//netdna.bootstrapcdn.com/font-awesome/4.0.3/css/font-awesome.min.css'>
+        <script src='https://ajax.googleapis.com/ajax/libs/jquery/3.2.1/jquery.min.js'></script>
+        <script src='https://cdn.jsdelivr.net/npm/sortablejs@1.6.1/Sortable.min.js'></script>
+        <link rel='stylesheet' href='../views/knockout.css' type='text/css'/>
+        <link rel='stylesheet' href='../views/shared.css' type='text/css'/>
+    </head>
+    <body>
+        <div class='container' id='knockoutContainer'>
+            <div class="masthead">
+                <h3 class="text-muted">WorldCup Fantasy Pool</h3>
+                <nav>
+                    <ul class="nav nav-justified">
+                        <li><a href='/profile'>Profile</a></li>
+                        <li><a href='/groups'>Group Picks</a></li>
+                        <li><a href='/knockout'>Knockout Picks</a></li>
+                        <li><a href='/schedule'>Schedule</a></li>
+                        <li><a href='/groupStandings'>Group Standings</a></li>
+                        <li><a href='/logout'>Logout</a></li>
+                    </ul>
+                </nav>
+            </div>
+            <div class="page-header text-center">
+                <h1><span class="fa fa-trophy"></span> Knockout Stage Picks</h1>
+            </div>
+            <main id="tournament" class='tournament'></main>
+        </div>
+        <script src='../views/knockout.js'></script>
+    </body>
+</html>

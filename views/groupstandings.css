@@ -1,0 +1,36 @@
+.flag {
+    width: 90px;
+    height: 60px;
+}
+
+.teamLabel {
+    color: black;
+    font-size: 20px;
+}
+
+.rowLabel {
+    display: flex;
+    justify-content: center;
+    width: 100%;
+}
+
+.extrasBox {
+    float: right;
+    text-align: center;
+}
+
+.pointsBox {
+    font-size: 30px;
+}
+
+.statsBox {
+    font-size: 15px;
+}
+
+.teamRow {
+    border: 1px solid black;
+}
+
+.container {
+    width: 1300px;
+}
