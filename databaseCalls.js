@@ -48,7 +48,7 @@ var get = {
         return await runQuery('SELECT te.name, gr.groupName, gr.wins, gr.losses, gr.draws, gr.goalsFor, gr.goalsAgainst, gr.points, gr.position FROM groups gr JOIN teams te ON te.id = gr.teamID ORDER BY gr.id, gr.position', null);
     },
     userStandings: async function () {
-        return await runQuery('SELECT us.name, us.points, us.paid FROM users us ORDER BY us.points, us.name', null);
+        return await runQuery('SELECT us.name, us.points, us.paid FROM users us ORDER BY us.points DESC, us.name', null);
     },
     fullSchedule: async function () {
         return await runQuery('SELECT * FROM schedule', null);

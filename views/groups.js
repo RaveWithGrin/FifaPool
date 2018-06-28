@@ -77,7 +77,6 @@ function parseTeams(data){
 };
 
 function processPercentages(data){
-    /*
     var rows = JSON.parse(data);
     for (var i = 0; i < sortables.length; i++){
         var order = sortables[i].toArray();
@@ -91,7 +90,6 @@ function processPercentages(data){
             }
         }
     }
-    */
 }
 
 function listSorted(evt){
@@ -105,7 +103,7 @@ function listSorted(evt){
         },
         success: function(response){
             var response = JSON.parse(response);
-            if response.error
+            if (response.error)
                 location.reload();
             $.ajax({
                 type: 'GET',
