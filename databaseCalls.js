@@ -61,6 +61,9 @@ var get = {
     },
     passwords: async function () {
         return await runQuery('SELECT email, password FROM users');
+    },
+    knockoutPicks: async function(id) {
+        return await runQuery('SELECT * FROM knockout_picks WHERE userId = ?', [id]);
     }
 };
 
@@ -70,6 +73,9 @@ var save = {
     },
     user: async function (user) {
         return await runQuery('INSERT INTO users (email, password, name) VALUES (?, ?, ?)', [user.email, user.password, user.name]);
+    },
+    knockoutPick: async function(pick) {
+        return await runQuery('INSERT INTO knockout_picks SET ? ON DUPLICATE KEY UPDATE winner = VALUES(winner), team1_score = VALUES(team1_score), team2_score = VALUES(team2_score)', [pick]);
     }
 }
 

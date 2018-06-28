@@ -3,6 +3,7 @@ var scores = require('../updateScores');
 var path = require('path');
 
 var groupsDeadline = new Date('2018-06-14 08:00:00 EST');
+var round2Deadline = new Date('2018-06-30 08:00:00 EST');
 
 module.exports = function (app, passport) {
     app.get('/', function (req, res) {
@@ -80,7 +81,7 @@ module.exports = function (app, passport) {
             console.log(result.error);
         res.redirect('/admin');
     });
-
+    
     app.post('/passwordReset', async function(req, res){
         var result = await dbCalls.update.password(req.body);
         if (result.error){
@@ -91,7 +92,6 @@ module.exports = function (app, passport) {
         }
     });
     
-
     app.get('/groups', isLoggedIn, function (req, res) {
         res.render('groups.ejs', { user: req.user });
     });
@@ -110,6 +110,15 @@ module.exports = function (app, passport) {
 
     app.get('/getPredictedKnockouts', isLoggedIn, async function (req, res) {
         var result = await dbCalls.get.predictedKnockouts(req.user);
+        if (result.error) {
+            res.send(JSON.stringify(result.error));
+        } else {
+            res.send(JSON.stringify(result.data));
+        }
+    });
+
+    app.get('/getKnockoutPicks', isLoggedIn, async function(req, res){
+        var result = await dbCalls.get.knockoutPicks(req.user.id);
         if (result.error) {
             res.send(JSON.stringify(result.error));
         } else {
@@ -183,6 +192,18 @@ module.exports = function (app, passport) {
             } else {
                 res.send(JSON.stringify('Inserted row ' + result.data.insertId));
             };
+        }
+    });
+
+    app.post('/saveKnockoutPick', isLoggedIn, async function (req, res) {
+        var currentDate = new Date();
+        if (currentDate >= round2Deadline) {
+            res.send(JSON.stringify({error: 'Deadline for knockout stage has passed'}));
+        } else {
+            var pick = req.body;
+            pick.userId = req.user.id;
+            var result = await dbCalls.save.knockoutPick(pick);
+            res.send(JSON.stringify(result));
         }
     });
 
