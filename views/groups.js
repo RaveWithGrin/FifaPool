@@ -4,7 +4,8 @@ var sortables = [];
 var sortableConfig = {
     dataIdAttr: 'id',
     animation: 100,
-    onEnd: listSorted
+    onEnd: listSorted,
+    disabled: true
 };
 
 var groupDeadline = new Date(Date.UTC(2018, 5, 14, 12, 0, 0)).getTime();

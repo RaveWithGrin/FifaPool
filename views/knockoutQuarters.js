@@ -8,15 +8,30 @@ var rounds = {
 $(document).ready(function(){
     $.ajax({
         type: 'GET',
-        url: '/getFirstRoundTeams',
+        url: '/getSecondRoundTeams',
         success: parseTeams
     });
 });
 
 function parseTeams(raw){
     var data = JSON.parse(raw);
-    for (var i = 0; i < data.length; i++){
+    for (var i = 0; i < 8; i++){
         rounds[1].push({
+            top: {
+                id: data[i].team1Id,
+                name: data[i].team1Name,
+                score: data[i].team1Score
+            },
+            bottom: {
+                id: data[i].team2Id,
+                name: data[i].team2Name,
+                score: data[i].team2Score
+            },
+            winner: ((data[i].team1Score > data[i].team2Score) ? 'top': 'bottom')
+        });
+    }
+    for (var i = 8; i < 12; i++){
+        rounds[2].push({
             top: {
                 id: data[i].team1Id,
                 name: data[i].team1Name,
@@ -30,7 +45,7 @@ function parseTeams(raw){
             winner: null
         });
     }
-    for (var i = 2; i < 5; i++){
+    for (var i = 3; i < 5; i++){
         for (var j = 0; j < Math.pow(2, (4-i)); j++){
             rounds[i].push({
                 top: {
@@ -62,7 +77,7 @@ function parseTeams(raw){
     });
     $.ajax({
         type: 'GET',
-        url: '/getRound1Picks',
+        url: '/getRound2Picks',
         success: getUserPicks
     });
 };
@@ -74,8 +89,10 @@ function getUserPicks(raw){
             rounds[pick.roundId][pick.matchId].winner = 'top';
         else
             rounds[pick.roundId][pick.matchId].winner = 'bottom';
+        rounds[pick.roundId][pick.matchId].top.score = pick.team1_score;
+        rounds[pick.roundId][pick.matchId].bottom.score = pick.team2_score;
     });
-    refreshRound(2);
+    refreshRound(3);
 }
 
 function refreshRound(round){
@@ -101,28 +118,30 @@ function refreshHTML(){
     $('#tournament').empty();
     $('#finals').empty();
     for (var i = 1; i < 4; i ++){
-        var html = '<ul class="round round-' + i + '">';
-        html += '<li class="spacer">&nbsp;</li>';
+        var html = '<ul class="round round-' + i + '"><li class="spacer">&nbsp;</li>';
         for (var j = 0; j < (rounds[i].length / 2); j++){
-            html += '<li class="game game-top' + ((rounds[i][j].winner === 'top') ? ' winner' : '') + '" ' + ((i === 1) ? 'onclick="toggleWinner(' + i + ', ' + j + ', ' + '\'top\')"' : '') + '>' + rounds[i][j].top.name  + '</li>';
+            html += '<li class="game game-top' + ((rounds[i][j].winner === 'top') ? ' winner' : '');
+            html += '">' + rounds[i][j].top.name + ((i === 2) ? ' <input type="number" id="score' + i + '_' + j + 'top" oninput="checkScores(' + i + ', ' + j + ')" style="width: 50px" value="' + rounds[i][j].top.score + '">' : ((i < 2) ? ' - ' + rounds[i][j].top.score : '')) + '</li>';
             html += '<li class="game game-spacer-left">&nbsp;</li>';
-            html += '<li class="game game-bottom' + ((rounds[i][j].winner === 'bottom') ? ' winner' : '') + '" ' + ((i === 1) ? 'onclick="toggleWinner(' + i + ', ' + j + ', ' + '\'bottom\')"' : '') + '>' + rounds[i][j].bottom.name + '</li>';
+            html += '<li class="game game-bottom' + ((rounds[i][j].winner === 'bottom') ? ' winner' : '');
+            html += '">' + rounds[i][j].bottom.name + ((i === 2) ? ' <input type="number" id="score' + i + '_' + j + 'bottom" oninput="checkScores(' + i + ', ' + j + ')" style="width: 50px" value="' + rounds[i][j].bottom.score + '">' : ((i < 2) ? ' - ' + rounds[i][j].bottom.score : '')) + '</li>';
             html += '<li class="spacer">&nbsp;</li>';
         }
         html += '</ul>';
         $('#tournament').append(html);
     }
     
-   html = '<ul class="round"><li class="spacer">&nbsp;</li></ul>';
-    $('#tournament').append(html);
+    html = '<ul class="round"><li class="spacer">&nbsp;</li></ul>';
+     $('#tournament').append(html);
     
     for (var i = 3; i > 0; i--){
-        var html = '<ul class="round round-' + i + '">';
-        html += '<li class="spacer">&nbsp;</li>';
+        var html = '<ul class="round round-' + i + '"><li class="spacer">&nbsp;</li>';
         for (var j = (rounds[i].length / 2); j < rounds[i].length; j++){
-            html += '<li class="game game-top' + ((rounds[i][j].winner === 'top') ? ' winner' : '') + '" ' + ((i === 1) ? 'onclick="toggleWinner(' + i + ', ' + j + ', ' + '\'top\')"' : '') + '>' + rounds[i][j].top.name  + '</li>';
+            html += '<li class="game game-top' + ((rounds[i][j].winner === 'top') ? ' winner' : '');
+            html += '">' + rounds[i][j].top.name + ((i === 2) ? ' <input type="number" id="score' + i + '_' + j + 'top" oninput="checkScores(' + i + ', ' + j + ')" style="width: 50px" value="' + rounds[i][j].top.score + '">' : ((i < 2) ? ' - ' + rounds[i][j].top.score : '')) + '</li>';
             html += '<li class="game game-spacer-right">&nbsp;</li>';
-            html += '<li class="game game-bottom' + ((rounds[i][j].winner === 'bottom') ? ' winner' : '') + '" ' + ((i === 1) ? 'onclick="toggleWinner(' + i + ', ' + j + ', ' + '\'bottom\')"' : '') + '>' + rounds[i][j].bottom.name + '</li>';
+            html += '<li class="game game-bottom' + ((rounds[i][j].winner === 'bottom') ? ' winner' : '');
+            html += '">' + rounds[i][j].bottom.name + ((i === 2) ? ' <input type="number" id="score' + i + '_' + j + 'bottom" oninput="checkScores(' + i + ', ' + j + ')" style="width: 50px" value="' + rounds[i][j].bottom.score + '">' : ((i < 2) ? ' - ' + rounds[i][j].bottom.score : '')) + '</li>';
             html += '<li class="spacer">&nbsp;</li>';
         }
         html += '</ul>';
@@ -161,32 +180,50 @@ function refreshHTML(){
     $('#finals').append(html);
 };
 
-function toggleWinner(round, match, winner){
+function checkScores(round, match){
+    var topID = '#score' + round + '_' + match + 'top';
+    var bottomID = '#score' + round + '_' + match + 'bottom';
+    var topScore = parseInt($(topID).val());
+    rounds[round][match].top.score = topScore;
+    var bottomScore = parseInt($(bottomID).val());
+    rounds[round][match].bottom.score = bottomScore;
+    if (topScore > bottomScore)
+        winner = 'top';
+    else if (topScore < bottomScore)
+        winner = 'bottom';
+    else   
+        winner = null;
+
     rounds[round][match].winner = winner;
-    var data = {
-        matchId: match,
-        roundId: round,
-        winner: rounds[round][match][winner].id
-    };
-    $.ajax({
-        type: 'POST',
-        url: '/saveKnockoutPick',
-        data: {
-            matchId: match,
-            roundId: round,
-            winner: rounds[round][match][winner].id
-        },
-        success: function(response){
-            var response = JSON.parse(response);
-            if (response.error) {
-                window.alert(response.error);
-                location.reload();
+
+    if (winner !== null){
+        $.ajax({
+            type: 'POST',
+            url: '/saveKnockoutPick',
+            data: {
+                matchId: match,
+                roundId: round,
+                winner: rounds[round][match][winner].id,
+                team1_score: rounds[round][match].top.score,
+                team2_score: rounds[round][match].bottom.score
+            },
+            success: function(response){
+                var response = JSON.parse(response);
+                if (response.error) {
+                    window.alert(response.error);
+                    location.reload();
+                }
+                if (round < 4)
+                    refreshRound(round + 1);
+                else
+                    refreshHTML();
             }
-            if (round < 4)
-                refreshRound(round + 1);
-            else
-                refreshHTML();
-        }
-    });
-    
+        });
+    }
+    else {
+        if (round < 4)
+            refreshRound(round + 1);
+        else
+            refreshHTML();
+    }
 }

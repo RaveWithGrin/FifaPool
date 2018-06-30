@@ -17,7 +17,6 @@ var runQuery = async function (sql, options) {
 
 var get = {
     userByEmail: async function (email) {
-        console.log(email);
         return await runQuery('SELECT * FROM users WHERE email = ?', [email]);
     },
     userByID: async function (id) {
@@ -35,8 +34,8 @@ var get = {
     predictedKnockouts: async function (user) {
         return await runQuery('SELECT gp.groupId AS `group`, gp.firstTeam AS `first`, t1.name AS firstName, gp.secondTeam AS `second`, t2.name AS secondName FROM group_picks gp JOIN teams t1 ON t1.id = gp.firstTeam JOIN teams t2 ON t2.id = gp.secondTeam WHERE gp.userId = ?', [user.id]);
     },
-    firstRoundTeams: async function(){
-        return await runQuery('SELECT gr.id AS `group`, gr.teamID, te.name  FROM groups gr JOIN teams te ON te.id = gr.teamID WHERE gr.`position` < 3 ORDER BY gr.id, gr.`position`');
+    roundTeams: async function(round){
+        return await runQuery('SELECT t1.id AS team1Id, t1.name AS team1Name, ko.team1Score, t2.id AS team2Id, t2.name AS team2Name, ko.team2Score FROM knockout ko JOIN teams t1 ON t1.id = ko.team1 JOIN teams t2 ON t2.id = ko.team2 WHERE ko.round <= ?', [round])
     },
     schedule: async function () {
         return await runQuery('SELECT s.`timestamp`, t1.id AS team1Id, t1.name AS team1Name, t2.id AS team2Id, t2.name AS team2Name FROM schedule s JOIN teams t1 ON s.team1 = t1.id JOIN teams t2 ON s.team2 = t2.id ORDER BY s.`timestamp`', null);
@@ -62,8 +61,8 @@ var get = {
     passwords: async function () {
         return await runQuery('SELECT email, password FROM users');
     },
-    knockoutPicks: async function(id) {
-        return await runQuery('SELECT * FROM knockout_picks WHERE userId = ?', [id]);
+    knockoutPicks: async function(id, round) {
+        return await runQuery('SELECT * FROM knockout_picks WHERE userId = ? AND roundId = ?', [id, round]);
     }
 };
 

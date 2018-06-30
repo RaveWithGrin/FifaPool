@@ -66,3 +66,7 @@ li.game-spacer-right {
 li.game-bottom{ 
     border-top:1px solid #aaa;
 }
+
+input {
+    text-align: center;
+}

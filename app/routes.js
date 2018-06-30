@@ -3,19 +3,23 @@ var scores = require('../updateScores');
 var path = require('path');
 
 var groupsDeadline = new Date('2018-06-14 08:00:00 EST');
-var round2Deadline = new Date('2018-06-30 08:00:00 EST');
+var round1Deadline = new Date('2018-06-30 08:00:00 EST');
+var round1Done = new Date('2018-07-03 17:00:00 EST');
+var quartersDeadline = new Date('2018-07-06 08:00:00 EST');
+var quartersDone = new Date('2018-07-07 17:00:00 EST');
+var semisDeadline = new Date('2018-07-10 08:00:00 EST');
+var semisDone = new Date('2018-07-11 17:00:00 EST');
+var finalsDeadline = new Date('2018-07-14 08:00:00 EST');
 
 module.exports = function (app, passport) {
+    // Main page
     app.get('/', function (req, res) {
         res.render('index.ejs');
     });
 
+    // Login page
     app.get('/login', function (req, res) {
         res.render('login.ejs', { message: req.flash('loginMessage') });
-    });
-
-    app.get('/resetPassword', function (req, res) {
-        res.render('reset.ejs', {message: req.flash('loginMessage')});
     });
 
     app.post('/login', passport.authenticate('local-login', {
@@ -30,6 +34,8 @@ module.exports = function (app, passport) {
         res.redirect('/');
     });
 
+
+    // Register page
     app.get('/signup', function (req, res) {
         var now = new Date();
         if (now >= groupsDeadline)
@@ -44,6 +50,24 @@ module.exports = function (app, passport) {
         failureFlash: true
     }));
 
+
+    // Reset password page
+    app.get('/resetPassword', function (req, res) {
+        res.render('reset.ejs', {message: req.flash('loginMessage')});
+    });
+    
+    app.post('/passwordReset', async function(req, res){
+        var result = await dbCalls.update.password(req.body);
+        if (result.error){
+            console.log(result.error);
+            res.redirect('/resetPassword');
+        } else {
+            res.redirect('/login');
+        }
+    });
+
+    
+    // Profile page
     app.get('/profile', isLoggedIn, async function (req, res) {
         var result = await dbCalls.get.userByEmail(req.user.email);
         if (result.error) {
@@ -54,6 +78,7 @@ module.exports = function (app, passport) {
         };
     });
 
+    // Admin pages
     app.get('/admin', isLoggedIn, function(req, res){
         if ([5, 113].indexOf(req.user.id) !== -1)
             res.sendFile(path.join(__dirname, '../views/admin.html'));
@@ -81,58 +106,46 @@ module.exports = function (app, passport) {
             console.log(result.error);
         res.redirect('/admin');
     });
-    
-    app.post('/passwordReset', async function(req, res){
-        var result = await dbCalls.update.password(req.body);
-        if (result.error){
-            console.log(result.error);
-            res.redirect('/resetPassword');
-        } else {
-            res.redirect('/login');
-        }
+
+    app.get('/updateScores', function(req, res){
+        scores.update();
+        res.send(JSON.stringify('Yes master'));
     });
     
+
+    // Groups page
     app.get('/groups', isLoggedIn, function (req, res) {
         res.render('groups.ejs', { user: req.user });
     });
 
+    app.get('/getTeams', async function (req, res) {
+        var result = await dbCalls.get.teams();
+        if (result.error) {
+            res.send(JSON.stringify(error));
+        } else {
+            res.send(JSON.stringify(result.data));
+        };
+    });
+
+    app.post('/saveTeams', function (req, res) {
+        var currentDate = new Date();
+        if (currentDate >= groupsDeadline) {
+            res.send(JSON.stringify({ error: 'Deadline for group picks has passed' }));
+        }
+        else {
+            var result = dbCalls.save.groupPicks(req.body, req.user);
+            if (result.error) {
+                res.send(JSON.stringify(error));
+            } else {
+                res.send(JSON.stringify('Inserted row ' + result.data.insertId));
+            };
+        }
+    });
+
+
+    // Group standings page
     app.get('/groupStandings', function (req, res) {
         res.sendFile(path.join(__dirname, '../views/groupstandings.html'));
-    });
-
-    app.get('/userStandings', function (req, res) {
-        res.sendFile(path.join(__dirname, '../views/userstandings.html'));
-    });
-
-    app.get('/knockout', isLoggedIn, function (req, res) {
-        res.sendFile(path.join(__dirname, '../views/knockout.html'));
-    });
-
-    app.get('/getPredictedKnockouts', isLoggedIn, async function (req, res) {
-        var result = await dbCalls.get.predictedKnockouts(req.user);
-        if (result.error) {
-            res.send(JSON.stringify(result.error));
-        } else {
-            res.send(JSON.stringify(result.data));
-        }
-    });
-
-    app.get('/getKnockoutPicks', isLoggedIn, async function(req, res){
-        var result = await dbCalls.get.knockoutPicks(req.user.id);
-        if (result.error) {
-            res.send(JSON.stringify(result.error));
-        } else {
-            res.send(JSON.stringify(result.data));
-        }
-    });
-
-    app.get('/getFirstRoundTeams', async function(req, res){
-        var result = await dbCalls.get.firstRoundTeams();
-        if (result.error) {
-            res.send(JSON.stringify(result.error));
-        } else {
-            res.send(JSON.stringify(result.data));
-        }
     });
 
     app.get('/getGroupPicks', isLoggedIn, async function (req, res) {
@@ -162,6 +175,12 @@ module.exports = function (app, passport) {
         };
     });
 
+
+    // User standings page
+    app.get('/userStandings', function (req, res) {
+        res.sendFile(path.join(__dirname, '../views/userstandings.html'));
+    });
+
     app.get('/getUserStandings', async function (req, res) {
         var result = await dbCalls.get.userStandings();
         if (result.error) {
@@ -171,34 +190,111 @@ module.exports = function (app, passport) {
         };
     });
 
-    app.get('/getTeams', async function (req, res) {
-        var result = await dbCalls.get.teams();
-        if (result.error) {
-            res.send(JSON.stringify(error));
-        } else {
-            res.send(JSON.stringify(result.data));
-        };
+
+    // Knockout page
+    app.get('/knockout', isLoggedIn, function (req, res) {
+        var currentDate = new Date();
+        if (currentDate > semisDone)
+            res.sendFile(path.join(__dirname, '../views/knockoutFinals.html'));
+        else if (currentDate > quartersDone)
+            res.sendFile(path.join(__dirname, '../views/knockoutSemis.html'));
+        else if (currentDate > round1Done)
+            res.sendFile(path.join(__dirname, '../views/knockoutQuarters.html'));
+        else
+            res.sendFile(path.join(__dirname, '../views/knockout.html'));
     });
 
-    app.post('/saveTeams', function (req, res) {
-        var currentDate = new Date();
-        if (currentDate >= groupsDeadline) {
-            res.send(JSON.stringify({ error: 'Deadline for group picks has passed' }));
+    app.get('/getPredictedKnockouts', isLoggedIn, async function (req, res) {
+        var result = await dbCalls.get.predictedKnockouts(req.user);
+        if (result.error) {
+            res.send(JSON.stringify(result.error));
+        } else {
+            res.send(JSON.stringify(result.data));
         }
-        else {
-            var result = dbCalls.save.groupPicks(req.body, req.user);
-            if (result.error) {
-                res.send(JSON.stringify(error));
-            } else {
-                res.send(JSON.stringify('Inserted row ' + result.data.insertId));
-            };
+    });
+
+    app.get('/getRound1Picks', isLoggedIn, async function(req, res){
+        var result = await dbCalls.get.knockoutPicks(req.user.id, 1);
+        if (result.error) {
+            res.send(JSON.stringify(result.error));
+        } else {
+            res.send(JSON.stringify(result.data));
+        }
+    });
+
+    app.get('/getRound2Picks', isLoggedIn, async function(req, res){
+        var result = await dbCalls.get.knockoutPicks(req.user.id, 2);
+        if (result.error) {
+            res.send(JSON.stringify(result.error));
+        } else {
+            res.send(JSON.stringify(result.data));
+        }
+    });
+
+    app.get('/getRound3Picks', isLoggedIn, async function(req, res){
+        var result = await dbCalls.get.knockoutPicks(req.user.id, 3);
+        if (result.error) {
+            res.send(JSON.stringify(result.error));
+        } else {
+            res.send(JSON.stringify(result.data));
+        }
+    });
+
+    app.get('/getRound4Picks', isLoggedIn, async function(req, res){
+        var result = await dbCalls.get.knockoutPicks(req.user.id, 4);
+        if (result.error) {
+            res.send(JSON.stringify(result.error));
+        } else {
+            res.send(JSON.stringify(result.data));
+        }
+    });
+
+    app.get('/getFirstRoundTeams', async function(req, res){
+        var result = await dbCalls.get.roundTeams(1);
+        if (result.error) {
+            res.send(JSON.stringify(result.error));
+        } else {
+            res.send(JSON.stringify(result.data));
+        }
+    });
+
+    app.get('/getSecondRoundTeams', async function(req, res){
+        var result = await dbCalls.get.roundTeams(2);
+        if (result.error) {
+            res.send(JSON.stringify(result.error));
+        } else {
+            res.send(JSON.stringify(result.data));
+        }
+    });
+
+    app.get('/getThirdRoundTeams', async function(req, res){
+        var result = await dbCalls.get.roundTeams(3);
+        if (result.error) {
+            res.send(JSON.stringify(result.error));
+        } else {
+            res.send(JSON.stringify(result.data));
+        }
+    });
+
+    app.get('/getFourthRoundTeams', async function(req, res){
+        var result = await dbCalls.get.roundTeams(4);
+        if (result.error) {
+            res.send(JSON.stringify(result.error));
+        } else {
+            res.send(JSON.stringify(result.data));
         }
     });
 
     app.post('/saveKnockoutPick', isLoggedIn, async function (req, res) {
         var currentDate = new Date();
-        if (currentDate >= round2Deadline) {
-            res.send(JSON.stringify({error: 'Deadline for knockout stage has passed'}));
+        if ((currentDate >= round1Deadline) && (currentDate <= round1Done)) {
+            res.send(JSON.stringify({error: 'Deadline for this stage has passed'}));
+        } else if ((currentDate >= quartersDeadline) && (currentDate <= quartersDone)) {
+            res.send(JSON.stringify({error: 'Deadline for this stage has passed'}));
+        } else if ((currentDate >= semisDeadline) && (currentDate <= semisDone)) {
+            res.send(JSON.stringify({error: 'Deadline for this stage has passed'}));
+        } else if (currentDate >= finalsDeadline) {
+            res.send(JSON.stringify({error: 'Deadline for this stage has passed'}));
         } else {
             var pick = req.body;
             pick.userId = req.user.id;
@@ -207,6 +303,8 @@ module.exports = function (app, passport) {
         }
     });
 
+
+    // Schedule
     app.get('/schedule', function (req, res) {
         res.render('schedule.ejs');
     });
@@ -220,11 +318,8 @@ module.exports = function (app, passport) {
         };
     });
 
-    app.get('/updateScores', function(req, res){
-        scores.update();
-        res.send(JSON.stringify('Yes master'));
-    });
 
+    // General
     app.get('/logout', function (req, res) {
         req.logout();
         res.redirect('/');
@@ -241,7 +336,6 @@ module.exports = function (app, passport) {
     app.get(/^(\/images\/.+)$/, function (req, res) {
         res.sendFile(path.join(__dirname, '../', req.params[0]));
     });
-
 };
 
 function isLoggedIn(req, res, next) {
