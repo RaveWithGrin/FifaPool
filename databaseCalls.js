@@ -63,6 +63,9 @@ var get = {
     },
     knockoutPicks: async function(id, round) {
         return await runQuery('SELECT * FROM knockout_picks WHERE userId = ? AND roundId = ?', [id, round]);
+    },
+    knockoutSchedule: async function () {
+        return await runQuery('SELECT ko.timestamp, IFNULL(t1.name, \'TBD\') AS team1, IFNULL(t2.name, \'TBD\') AS team2 FROM knockout ko LEFT JOIN teams t1 ON t1.id = ko.team1 LEFT JOIN teams t2 ON t2.id = ko.team2');
     }
 };
 

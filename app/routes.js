@@ -305,8 +305,9 @@ module.exports = function (app, passport) {
 
 
     // Schedule
-    app.get('/schedule', function (req, res) {
-        res.render('schedule.ejs');
+    app.get('/schedule', async function (req, res) {
+        var schedule = await dbCalls.get.knockoutSchedule();
+        res.render('schedule.ejs', { schedule: schedule.data });
     });
 
     app.get('/getSchedule', async function (req, res) {

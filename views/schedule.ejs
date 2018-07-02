@@ -29,8 +29,21 @@
                 <h1><span class="fa fa-calendar"></span> Schedule</h1>
             </div>
             <div class='container' id='scheduleContainer'>
+              <% schedule.forEach(function(match){ %>
+              <div class='row well'>
+                <div class='team'>
+                  <img class='flag' src='../images/<%= match.team1 %>.jpg' alt=''>
+                  </img>
+                  <%= match.team1 %>
+                </div>
+                <div class='date'><%= new Date(match.timestamp + ' UTC').toDateString()  +  ' @ ' + new Date(match.timestamp + ' UTC').toLocaleTimeString() %></div>
+                <div class='team'>
+                  <%= match.team2 %>
+                  <img class='flag' src='../images/<%= match.team2 %>.jpg' alt=''></img>
+                </div>
+              </div>
+              <% }); %>
             </div>
         </div>
-        <script src='../views/schedule.js'></script>
     </body>
 </html>
